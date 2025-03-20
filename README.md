@@ -56,8 +56,8 @@ The program must answer the following queries:
 
 2. Clone this repository:
    ```sh
-   git clone https://github.com/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/Football-League-Queries-Prolog.git
+   cd Football-League-Queries-Prolog
    ```
 
 3. Open SWI-Prolog and consult the knowledge base:
