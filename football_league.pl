@@ -33,9 +33,9 @@ num_matches_of_team(Team, Count) :-
 %% =========================================================
 
 top_scorer(Player) :-
-    % For a player to be top scorer, there should be no other player with a higher goal count.
     goals(Player, Goals),
-    \+ (goals(_, OtherGoals), OtherGoals > Goals).
+    \+ (goals(_, OtherGoals), OtherGoals > Goals),
+    !.
 
 
 %% =========================================================
