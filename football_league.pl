@@ -106,3 +106,36 @@ find_teams(Country, Acc, Teams) :-
     append(Acc, [Name], NewAcc),
     find_teams(Country, NewAcc, Teams), !.
 find_teams(_, Teams, Teams) :- !.
+
+% ======================= TASK 1 ======================= %
+players_in_team(Team, Players) :-
+    players_in_team_acc(Team, [], Players).
+
+players_in_team_acc(Team, Acc, Players) :-
+    player(Name, Team, _),
+    \+ member(Name, Acc),
+    !,
+    append(Acc, [Name], NewAcc),
+    players_in_team_acc(Team, NewAcc, Players).
+players_in_team_acc(_, Players, Players).
+
+% ======================= TASK 3 ======================= %
+most_successful_team(Team) :-
+    most_successful_team_calc(none, 0, [], Team).
+
+
+most_successful_team_calc(CurrentTeam, CurrentMax, Processed, FinalTeam) :-
+    team(Name, _, Wins),
+    \+ member(Name, Processed),
+    !,
+    (Wins > CurrentMax ->
+        NewMax = Wins,
+        NewTeam = Name
+    ;
+        NewMax = CurrentMax,
+        NewTeam = CurrentTeam
+    ),
+    append(Processed, [Name], NewProcessed),
+    most_successful_team_calc(NewTeam, NewMax, NewProcessed, FinalTeam).
+
+most_successful_team_calc(FinalTeam, _, _, FinalTeam).
