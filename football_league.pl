@@ -1,47 +1,55 @@
 :- consult(league_data).
 
-member(X, [X|_]).
-    member(X, [_|Tail]):-
+% ======================= HELPER PREDICATES ======================= %
+% Member: Check if X is in a list
+member(X, [X|_]) :- !.
+member(X, [_|Tail]) :-
+    member(X, Tail).
 
-member(X, Tail).
+% Append: Concatenate two lists
+append([], L, L) :- !.
+append([H|T], L2, [H|NT]) :-
+    append(T, L2, NT), !.
 
-append([], L, L).
-    append([H|T], L2, [H|NT]):-
+% List length: Calculate the length of a list
+list_length([], 0) :- !.
+list_length([_|T], N) :-
+    list_length(T, N1),
+    N is N1 + 1, !.
 
-append(T, L2, NT).
+% ======================= TASK 4 ======================= %
+% List all matches where a team participated (with goals)
+matches_of_team(Team, Matches) :-
+    find_matches(Team, [], Matches), !.
 
-append([], L, L).
+find_matches(Team, Acc, Matches) :-
+    (   match(Team, Opponent, G1, G2),
+        \+ member((Team, Opponent, G1, G2), Acc),
+        append(Acc, [(Team, Opponent, G1, G2)], NewAcc),
+        find_matches(Team, NewAcc, Matches), !
+    ;   match(Opponent, Team, G1, G2),
+        \+ member((Opponent, Team, G1, G2), Acc),
+        append(Acc, [(Opponent, Team, G1, G2)], NewAcc),
+        find_matches(Team, NewAcc, Matches), !
+    ),
+    !.
+find_matches(_, Matches, Matches) :- !.
 
-append([H|T], L2, [H|NT]):-
-	append(T, L2, NT).
-
-member(X, [X|_]).
-    member(X, [_|Tail]):-
-
-member(X, Tail).
-
-%% =========================================================.
-%% Task 5: count all matches where a specific team participated.
-%% =========================================================.
-
+% ======================= TASK 5 ======================= %
+% Count matches for a team
 num_matches_of_team(Team, Count) :-
     matches_of_team(Team, List),
-    size(N, List).
+    list_length(List, Count), !.
 
-%% =========================================================
-%% Task 6: Find the top goal scorer in the tournament.
-%% =========================================================
-
+% ======================= TASK 6 ======================= %
+% Find top goal scorer
 top_scorer(Player) :-
     goals(Player, Goals),
     \+ (goals(_, OtherGoals), OtherGoals > Goals),
     !.
 
-
-%% =========================================================
-%% Task 7: Find the Most Common Position in a Specific Team
-%% =========================================================
-
+% ======================= TASK 7 ======================= %
+% Most common position in a team
 most_common_position_in_team(Team, Pos) :-
     players_in_team(Team, Players),
     get_positions(Players, Positions),
@@ -49,26 +57,52 @@ most_common_position_in_team(Team, Pos) :-
     find_max_freq(Freq, (Pos, _)),
     !.
 
-get_positions([], []).
+players_in_team(Team, Players) :-
+    find_players(Team, [], Players), !.
+
+find_players(Team, Acc, Players) :-
+    player(Name, Team, _),
+    \+ member(Name, Acc),
+    append(Acc, [Name], NewAcc),
+    find_players(Team, NewAcc, Players), !.
+find_players(_, Players, Players) :- !.
+
+get_positions([], []) :- !.
 get_positions([Player | Rest], [Pos | PosRest]) :-
     player(Player, _, Pos),
-    get_positions(Rest, PosRest).
+    get_positions(Rest, PosRest), !.
 
 position_frequency(Positions, Freq) :-
-    position_frequency(Positions, [], Freq).
+    position_frequency(Positions, [], Freq), !.
 
-position_frequency([], Freq, Freq).
+position_frequency([], Freq, Freq) :- !.
 position_frequency([Pos | Rest], Acc, Freq) :-
     update_freq(Pos, Acc, NewAcc),
-    position_frequency(Rest, NewAcc, Freq).
+    position_frequency(Rest, NewAcc, Freq), !.
 
-update_freq(Pos, [], [(Pos, 1)]).
+update_freq(Pos, [], [(Pos, 1)]) :- !.
 update_freq(Pos, [(Pos, Count) | Rest], [(Pos, NewCount) | Rest]) :-
-    NewCount is Count + 1.
+    NewCount is Count + 1, !.
 update_freq(Pos, [Other | Rest], [Other | NewRest]) :-
-    update_freq(Pos, Rest, NewRest).
+    update_freq(Pos, Rest, NewRest), !.
 
-find_max_freq([(Pos, Count)], (Pos, Count)).
+find_max_freq([(Pos, Count)], (Pos, Count)) :- !.
 find_max_freq([(Pos, Count) | Rest], Max) :-
     find_max_freq(Rest, (RestPos, RestCount)),
-    (Count > RestCount -> Max = (Pos, Count) ; Max = (RestPos, RestCount)).
+    (Count > RestCount -> Max = (Pos, Count) ; Max = (RestPos, RestCount)), !.
+
+% ======================= TASK 2 ======================= %
+% Count teams from a country
+team_count_by_country(Country, Count) :-
+    find_teams_by_country(Country, Teams),
+    list_length(Teams, Count), !.
+
+find_teams_by_country(Country, Teams) :-
+    find_teams(Country, [], Teams), !.
+
+find_teams(Country, Acc, Teams) :-
+    team(Name, Country, _),
+    \+ member(Name, Acc),
+    append(Acc, [Name], NewAcc),
+    find_teams(Country, NewAcc, Teams), !.
+find_teams(_, Teams, Teams) :- !.
