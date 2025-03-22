@@ -57,39 +57,29 @@ most_common_position_in_team(Team, Pos) :-
     find_max_freq(Freq, (Pos, _)),
     !.
 
-players_in_team(Team, Players) :-
-    find_players(Team, [], Players), !.
-
-find_players(Team, Acc, Players) :-
-    player(Name, Team, _),
-    \+ member(Name, Acc),
-    append(Acc, [Name], NewAcc),
-    find_players(Team, NewAcc, Players), !.
-find_players(_, Players, Players) :- !.
-
-get_positions([], []) :- !.
+get_positions([], []).
 get_positions([Player | Rest], [Pos | PosRest]) :-
     player(Player, _, Pos),
-    get_positions(Rest, PosRest), !.
+    get_positions(Rest, PosRest).
 
 position_frequency(Positions, Freq) :-
-    position_frequency(Positions, [], Freq), !.
+    position_frequency(Positions, [], Freq).
 
-position_frequency([], Freq, Freq) :- !.
+position_frequency([], Freq, Freq).
 position_frequency([Pos | Rest], Acc, Freq) :-
     update_freq(Pos, Acc, NewAcc),
-    position_frequency(Rest, NewAcc, Freq), !.
+    position_frequency(Rest, NewAcc, Freq).
 
-update_freq(Pos, [], [(Pos, 1)]) :- !.
+update_freq(Pos, [], [(Pos, 1)]).
 update_freq(Pos, [(Pos, Count) | Rest], [(Pos, NewCount) | Rest]) :-
-    NewCount is Count + 1, !.
+    NewCount is Count + 1.
 update_freq(Pos, [Other | Rest], [Other | NewRest]) :-
-    update_freq(Pos, Rest, NewRest), !.
+    update_freq(Pos, Rest, NewRest).
 
-find_max_freq([(Pos, Count)], (Pos, Count)) :- !.
+find_max_freq([(Pos, Count)], (Pos, Count)).
 find_max_freq([(Pos, Count) | Rest], Max) :-
     find_max_freq(Rest, (RestPos, RestCount)),
-    (Count > RestCount -> Max = (Pos, Count) ; Max = (RestPos, RestCount)), !.
+    (Count >= RestCount -> Max = (Pos, Count) ; Max = (RestPos, RestCount)).
 
 % ======================= TASK 2 ======================= %
 % Count teams from a country
